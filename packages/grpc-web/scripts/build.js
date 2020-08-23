@@ -16,6 +16,7 @@
  *
  */
 
+const fs = require("fs");
 const path = require("path");
 const {exec} = require("child_process");
 
@@ -24,36 +25,43 @@ const cwd = process.cwd();
 const indexPath = path.relative(cwd, path.resolve(__dirname, "../index.js"));
 
 const jsPaths = [
+  "../exports.js",
   "../../../javascript",
   "../../../third_party/closure-library",
-  "../../../third_party/grpc/third_party/protobuf/js",
 ].map(jsPath => path.relative(cwd, path.resolve(__dirname, jsPath)));
-
-const grpcWebExports = [
-  "grpc.web.AbstractClientBase",
-  "grpc.web.ClientReadableStream",
-  "grpc.web.Error",
-  "grpc.web.GrpcWebClientBase",
-  "grpc.web.GrpcWebClientReadableStream",
-  "grpc.web.GrpcWebStreamParser",
-  "grpc.web.Status",
-  "grpc.web.StatusCode",
-];
 
 const closureArgs = [].concat(
   jsPaths.map(jsPath => `--js=${jsPath}`),
-  grpcWebExports.map(grpcWebExport => `--entry_point=${grpcWebExport}`),
   [
-    `--dependency_mode=STRICT`,
+    `--entry_point=grpc.web.Exports`,
+    `--externs=externs.js`,
+    `--dependency_mode=PRUNE`,
+    `--compilation_level=ADVANCED_OPTIMIZATIONS`,
+    `--generate_exports`,
+    `--export_local_property_definitions`,
     `--js_output_file=${indexPath}`,
-    `--output_wrapper="%output%module.exports = grpc.web;"`,
   ]
 );
 
-const closureCommand = "google-closure-compiler " + closureArgs.join(' ');
+const closureCompilerBin =
+  path.resolve(__dirname, "../node_modules/.bin/google-closure-compiler");
+const closureCommand = closureCompilerBin + " " + closureArgs.join(' ');
 
 console.log(closureCommand);
 let child = exec(closureCommand);
 
 child.stdout.pipe(process.stdout);
 child.stderr.pipe(process.stderr);
+
+function createSymlink(target, path) {
+  fs.symlink(target, path, (err) => {
+    if (err && err.code != 'EEXIST') {
+      throw err;
+    }
+  });
+}
+
+createSymlink(path.resolve(__dirname, "../index.js"),
+              path.resolve(__dirname, "../node_modules/grpc-web.js"));
+createSymlink(path.resolve(__dirname, "../index.d.ts"),
+              path.resolve(__dirname, "../node_modules/grpc-web.d.ts"));

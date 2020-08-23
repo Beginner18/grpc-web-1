@@ -28,7 +28,7 @@ OUT_DIR = ./out
 PROTOBUF_PATH = third_party/grpc/third_party/protobuf
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
-GRPC_WEB_PLUGIN_PATH = $(ROOT_DIR)/$(JS_PATH)/protoc-gen-grpc-web
+GRPC_WEB_PLUGIN_PATH = /usr/local/bin/protoc-gen-grpc-web
 
 all: echo_server client package
 
@@ -73,7 +73,7 @@ compiled-js:
   --js $(ROOT_DIR)/third_party/closure-library \
   --js $(ROOT_DIR)/$(PROTOBUF_PATH)/js \
   --entry_point=goog:proto.grpc.gateway.testing.EchoServiceClient \
-  --dependency_mode=STRICT \
+  --dependency_mode=PRUNE \
   --js_output_file compiled.js
 	cd $(ROOT_DIR)/$(PROTOBUF_PATH) && git checkout .
 
@@ -82,12 +82,6 @@ proto-js:
 	$(PROTOC) -I=$(ROOT_DIR)/$(PROTOBUF_PATH)/src/google/protobuf \
   --js_out=$(JS_IMPORT_STYLE):$(OUT_DIR) \
   $(ROOT_DIR)/$(PROTOBUF_PATH)/src/google/protobuf/any.proto
-	$(PROTOC) -I=$(PROTOS_PATH)/protos \
-  --js_out=$(JS_IMPORT_STYLE):$(OUT_DIR) \
-  $(PROTOS_PATH)/protos/stream_body.proto
-	$(PROTOC) -I=$(PROTOS_PATH)/protos \
-  --js_out=$(JS_IMPORT_STYLE):$(OUT_DIR) \
-  $(PROTOS_PATH)/protos/pair.proto
 	$(PROTOC) -I=. --js_out=$(JS_IMPORT_STYLE):$(OUT_DIR) ./echo.proto
 	$(PROTOC) -I=. --plugin=protoc-gen-grpc-web=$(GRPC_WEB_PLUGIN_PATH) \
   --grpc-web_out=import_style=closure,mode=grpcwebtext:. ./echo.proto

@@ -4,8 +4,7 @@ gRPC-Web provides a Javascript library that lets browser clients access a gRPC
 service. You can find out much more about gRPC in its own
 [website](https://grpc.io).
 
-The current release is a Beta release, and we expect to announce
-General-Availability by Oct. 2018.
+gRPC-Web is now Generally Available, and considered stable enough for production use.
 
 gRPC-Web clients connect to gRPC services via a special gateway proxy: the
 current version of the library uses [Envoy](https://www.envoyproxy.io/) by
@@ -13,7 +12,7 @@ default, in which gRPC-Web support is built-in.
 
 In the future, we expect gRPC-Web to be supported in language-specific Web
 frameworks, such as Python, Java, and Node. See the
-[roadmap](https://github.com/grpc/grpc-web/blob/master/ROADMAP.md) doc.
+[roadmap](https://github.com/grpc/grpc-web/blob/master/doc/roadmap.md) doc.
 
 
 ## Quick Start
@@ -27,12 +26,18 @@ This example is using the `echo.proto` file from the
 $ npm i grpc-web
 ```
 
- 2. Compile the `protoc-gen-grpc-web` protoc plugin.
+ 2. Download `protoc` and the `protoc-gen-grpc-web` protoc plugin.
 
-```sh
-$ git clone https://github.com/grpc/grpc-web
-$ cd grpc-web && sudo make install-plugin
-```
+You can download the `protoc` binary from the official
+[protocolbuffers](https://github.com/protocolbuffers/protobuf/releases)
+release page.
+
+You can download the `protoc-gen-grpc-web` protoc plugin from our Github
+[release](https://github.com/grpc/grpc-web/releases) page.
+
+
+Make sure they are both executable and are discoverable from your PATH.
+
 
  3. Generate your proto messages and the service client stub classes with
 `protoc` and the `protoc-gen-grpc-web` plugin. You can set the
